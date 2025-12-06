@@ -62,6 +62,7 @@
     - Docker Pipeline
     - Docker API
     - docker-build-step
+    - Prometheus metrics 
 
   - Configure the following 'Tools'
     - JDK installation
@@ -95,11 +96,145 @@
      - ```docker rm netflix```
      - check if deleted using ```docker ps```
      - Go to Docker Hub and delete the 'netflix' image
-    
-        
+     - 
+   - Add jenkins in the Docker group
+     ```
+     sudo su
+     sudo usermod -aG docker jenkins
+     ```
    - Create and run the pipeline in Jenkins
-   - After the pipeline is run you can see the report in SonarQube
+   - After the pipeline is run you can see the report in SonarQube, netflix image is created on Docker Hub, netflix container is running
+
+## Monitoring
+
+- Create a new EC2 instance
+  - Region - London (eu-west-2)
+  - Name - Monitoring
+  - AMI - Ubuntu
+  - Instance type - t2.medium
+  - Key pair - netflix_key_pair
+  - Network settings - Allow SSH, HTTPS traffic
+  - Configure storage - Size: 20 GiB
+- Allocate Elastic IP to your Instance
+- Add rules to the security group
+  - 9090, Anywhere IPv4, prometheus
+  - 9100, Anywhere IPv4, node-exporter
+  - 3000, Anywhere IPv4, grafana
+- Run ```sudo apt update -y```
   
+- Install Prometheus on your EC2 instance
+- Set ownership for directories
+  - ```sudo chown -R prometheus:prometheus /etc/prometheus/ /data/```
+- Create a service for prometheus
+  - ```sudo nano /etc/systemd/system/prometheus.service```
+  - ```
+    [Unit]
+    Description=Prometheus
+    Wants=network-online.target
+    After=network-online.target
+
+    StartLimitIntervalSec=500
+    StartLimitBurst=5
+
+    [Service]
+    User=prometheus
+    Group=prometheus
+    Type=simple
+    Restart=on-failure
+    RestartSec=5s
+    ExecStart=/usr/local/bin/prometheus \
+      --config.file=/etc/prometheus/prometheus.yml \
+      --storage.tsdb.path=/data \
+      --web.console.templates=/etc/prometheus/consoles \
+      --web.console.libraries=/etc/prometheus/console_libraries \
+      --web.listen-address=0.0.0.0:9090 \
+      --web.enable-lifecycle
+
+    [Install]
+    WantedBy=multi-user.target
+    ```
+
+ - Enable and start Prometheus
+     ```
+     sudo systemctl enable prometheus
+     sudo systemctl start prometheus
+     ```
+  - Verify Prometheus's status
+    ```sudo systemctl status prometheus```
+
+  - In the browser search \<PublicIP-of-Monitoring-intance>:9090, Prometheus page should be displayed
+    
+  - Install Node Exporter on your instance
+  - Create a service for Node Exporter
+    - ```sudo nano /etc/systemd/system/node_exporter.service```
+    ```
+    [Unit]
+    Description=Node Exporter
+    Wants=network-online.target
+    After=network-online.target
+    
+    StartLimitIntervalSec=500
+    StartLimitBurst=5
+    
+    [Service]
+    User=node_exporter
+    Group=node_exporter
+    Type=simple
+    Restart=on-failure
+    RestartSec=5s
+    ExecStart=/usr/local/bin/node_exporter --collector.logind
+    
+    [Install]
+    WantedBy=multi-user.target
+    ```
+
+  - Enable and start Node Exporter
+    ```
+    sudo systemctl enable node_exporter
+    sudo systemctl start node_exporter
+    ```
+  - Verify Node Exporter's status
+    ```sudo systemctl status node_exporter```
+    You can access Node Exporter metrics in Prometheus
+
+  - Add jobs to the 'prometheus.yml' file
+    - Navigate to ```/etc/prometheus/```
+    - Run ``` cat prometheus.yml```
+      ```
+      - job_name: "node_exporter"
+        static_configs:
+          - targets: ["<PublicIP>:9100"]
+
+        - job_name: "jenkins"
+          metrics_path: "/prometheus"
+          static_configs:
+            - targets: ["<PublicIP>:8080"]
+      ```
+    - Check syntax using
+      ```promtool check config /etc/prometheus/prometheus.yml```
+
+    - Reload Prometheus ```curl -X POST http://localhost:9090/-/reload```
+    - In the browser search \<PublicIP-of-Monitoring-intance>:9090, go to 'Status' -> 'Targets', the node exporter metric should be displayed
+      
+    - Install Grafana on your EC2 instance
+    - Enable and Start Grafana Service
+      ```
+      sudo systemctl enable grafana-server
+      sudo systemctl start grafana-server
+      ```
+    - Check Grafana Status ```sudo systemctl status grafana-server```
+    - In the browser search \<PublicIP-of-Monitoring-intance>:3000, Grafana login page should be displayed
+    - Login using 'Username: admin' & 'Password: admin'
+    - Add Prometheus as a Data source
+    - Import node exporter dashboard - 1860
+    - Dashboard will be displayed
+    - Import Jenkins dashboard - 9964
+    - Dashboard will be displayed
+    
+
+
+  
+
 
 
 

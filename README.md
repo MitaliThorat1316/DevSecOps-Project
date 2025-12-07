@@ -83,12 +83,32 @@
       - Name : Sonar-token
     - Add Docker Username and Password
       - Name : docker
+    - Add Gmail Username and Password
+      - Name : mail
    
   - Configure the 'System'
     - SonarQube servers
       - Name : sonar-server
       - Server URL : https://<PublicIP>:9000
       - Server authentication token : Sonar-token
+        
+    - Email Notification
+      - SMTP : smtp.gmail.com
+      - Default user e-mail suffix : \<your-gmail>
+      - Advanced :
+        - Use SMTP Authentication : \<your-gmail> and \<gmail-app-password>
+        - Use SSL
+        - SMTP Port : 465
+        - Test configuration by sending test e-mail: \<give-another-gmail>
+
+    - Extended E-mail Notification
+      - SMTP : smtp.gmail.com
+      - SMTP Port : 465
+      - Advanced :
+        - Credentials : \<mail-credential>
+        - Use SSL
+      - Default content type : HTML(text/html)
+      - Default Triggers : Always, Failure - Any
      
    - Delete the netflix container and image previously created
      - In your instance, ```docker ps```
@@ -209,6 +229,11 @@
           metrics_path: "/prometheus"
           static_configs:
             - targets: ["<PublicIP>:8080"]
+      
+        - job_name: "K8s"
+          metrics_path: "/metrics"
+          static_configs:
+            - targets: ["<PublicIP-of-node>:9100"]
       ```
     - Check syntax using
       ```promtool check config /etc/prometheus/prometheus.yml```
@@ -230,10 +255,60 @@
     - Dashboard will be displayed
     - Import Jenkins dashboard - 9964
     - Dashboard will be displayed
-    
+   
+  ## Kubernetes
 
+- Create EKS Cluster
+  - Name : Netflix
+  - Cluster service role : Create recommended role
+    - If creating your own role must have these poilicies :
+    - AmazonEKSBlockStoragePolicy
+    - AmazonEKSClusterPolicy
+    - AmazonEKSComputePolicy
+    - AmazonEKSLoadBalancingPolicy
+    - AmazonEKSNetworkingPolicy
+  - Subnet : Atleast two
+    - All subnets used should have the following tags
+      - Key : kubernetes.io/role/elb , Value : 1
+      - Key : kubernetes.io/cluster/Netflix , Value : shared
+  - Cluster endpoint access : Public and Private
+  - Add Ons:
+    - Amazon EKS Pod Identity Agent
+    - Metrics Server
+    - Amazon VPC CNI
+    - kube-proxy
+    - CoreDNS
+  - Everything else is default settings
+  - Will be 'Active' in 15-20 minutes
+ 
+- Create Node group in the EKS Cluster
+  - Name : Node group
+  - Node IAM role : Create recommended role
+    - Must have following policies :
+    - AmazonEC2ContainerRegistryPullOnly
+    - AmazonEKSWorkerNodeMinimalPolicy
+  - Node group scalling configuration : 
+    - Desired size : 1
+    - Minimum size : 1
+    - Maximum size : 1
+  - Everything else is default settings
+ 
+ - On your machine, set context to start using EKS Cluster
+   ```aws eks update-kubeconfig --name Netflix --region <your-region>```
+ - Install Kubectl
+ - Install Helm
+ - Install Argocd
+ - Expose argocd-server
+ - Install Node Exporter
 
-  
+ - Login Argocd using 'Username: admin' & 'Password: admin'
+ - Add Repository in argocd
+ - Create Application in argocd
+ - Amazon Elastic Kubernetes Service\Clusters\Netflix\nodes
+ - In the EC2 instance attached to the node, edit the security group
+   - 30007, Anywhere IPv4, app nodeport
+   - 9100, Anywhere IPv4, nodeexporter
+- In the browser search \<PublicIP>:30007, Netflix page should be displayed 
 
 
 

@@ -1,4 +1,8 @@
-# Project Implementation
+# Dev-Sec-Ops Project
+## Table of contents
+## Project Highlights
+## Project Techstack
+## Project Implementation
 
 ## PART 1 : Development
 ### Run project locally
@@ -333,6 +337,7 @@
   ![netflix new](docs/Netflix-new.png)<br><br><br>
 - In the browser search ```<PublicIP>:9100```, Netflix page should be displayed<br><br>
   ![node exporter](docs/node-exporter.png)
+
 
 
 

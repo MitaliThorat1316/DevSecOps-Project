@@ -17,6 +17,7 @@
   - 8080, Anywhere IPv4, jenkins
   - 9000, Anywhere IPv4, sonarqube
 - Connect to the Instance using EC2 Instance Connect
+- ![Alt text](d)
 - sudo apt update -y
 - Clone the repository on the EC2 instance
 - Navigate to the repository DevSecOps-Project (you'll see the Dockerfile)
@@ -309,6 +310,7 @@
    - 30007, Anywhere IPv4, app nodeport
    - 9100, Anywhere IPv4, nodeexporter
 - In the browser search \<PublicIP>:30007, Netflix page should be displayed 
+
 
 
 

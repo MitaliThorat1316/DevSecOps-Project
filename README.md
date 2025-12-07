@@ -1,6 +1,6 @@
 # Project Implementation
 
-## DEV part - Running the project locally
+## PART 1 : Development
 - Create AWS Account
 - Create an EC2 instance
   - Region - London (eu-west-2)
@@ -17,39 +17,43 @@
   - 8080, Anywhere IPv4, jenkins
   - 9000, Anywhere IPv4, sonarqube
 - Connect to the Instance using EC2 Instance Connect
-- ![Alt text](d)
-- sudo apt update -y
-- Clone the repository on the EC2 instance
-- Navigate to the repository DevSecOps-Project (you'll see the Dockerfile)
- 
+  ![ec2 instance](docs/ec2-netflix-jenkins.png)
+- Run ```sudo apt update -y```
+- Clone your repository on the EC2 instance
+- Navigate to the repository DevSecOps-Project (you'll see the Dockerfile)<br><br><br>
 
 - In the browser, go to 'TMDB' website and create an account
-- Go to your profile, create and copy the API Key
+- Go to your profile, create and copy the API Key<br><br><br>
 
-
-- Install Docker on your EC2 instance - check using 'docker version' command
-- docker build --build-arg TMDB_V3_API_KEY=<your-api-key> -t netflix . - check using 'docker images', netflix image should be created
-- docker run -d -p 8081:80 netflix
-- Copy the PublicIP of the instance, in the browser search \<PublicIP>:8081 - will only open if port 8081 is open in the security group
+- Install Docker on your EC2 instance
+  - check using ```docker version```
+- Run ```docker build --build-arg TMDB_V3_API_KEY=<your-api-key> -t netflix .```
+  - check using ```docker images``` netflix image should be created
+- Run ```docker run -d -p 8081:80 netflix```
+- Copy the PublicIP of the instance, in the browser search ```<PublicIP>:8081```
+  - will only open if port 8081 is open in the security group
 - The Netflix clone website should be displayed successfully
+  ![netflix](docs/Netflix-page.png)<br><br><br>
 
-## Sec part - integrating security
+## PART 2 : Security
 
 - Intall Sonarqube and Trivy on your instance
-  - For sonarqube check using 'docker ps', 'sonarqube:lts-community' container should be displayed
-    - In your browser, search \<PublicIP>:9000, sonarqube login page should be seen
+  - For sonarqube check using ```docker ps``` 'sonarqube:lts-community' container should be displayed
+    - In your browser, search ```<PublicIP>:9000```, sonarqube login page should be seen
     - Login using 'Username: admin' & 'Password: admin'
-  - For Trivy check using 'trivy version' command
+      ![sonarqube](docs/sonarqube.png)
+  - For Trivy check using ```trivy version```
     - trivy fs . or trivy image netflix
     - You'll get a report of vulneribilities
+      ![trivy-1](docs/trivy-1.png) <br><br>
+      ![trivy-2](docs/trivy-2.png) <br><br><br>
 
 
-## OPs
+## PART 3 : Operations
 
-## CICD
   - Install jenkins on your EC2 instance
     - check using ```sudo service jenkins status```
-    - In your browser, search \<PublicIP>:8080, jenkins page will be displayed, copy the path displayed
+    - In your browser, search ```<PublicIP>:8080```, jenkins page will be displayed, copy the path displayed
     - In your instance, ```sudo cat <path>```, copy the password and login to jenkins
 
   - In Jenkins, add the following 'Plugins'
@@ -77,14 +81,16 @@
     - Docker installation
       - Name : docker
 
-  - Create Sonarqube token
+  - Prerequsities for creating 'Credentials' and 'Systems' in jenkins :
+    - Create and copy token in SonarQube
+    - Create 'app password' in your gmail account and copy it
     
   - Add the following 'Credentials'
     - Add SonarQube token
       - Name : Sonar-token
     - Add Docker Username and Password
       - Name : docker
-    - Add Gmail Username and Password
+    - Add Gmail Username and Password (use the gmail account you want to get notifications in)
       - Name : mail
    
   - Configure the 'System'
@@ -113,20 +119,21 @@
      
    - Delete the netflix container and image previously created
      - In your instance, ```docker ps```
-     - ```docker stop netflix```
-     - ```docker rm netflix```
-     - check if deleted using ```docker ps```
+     - Run ```docker stop netflix```
+     - Run ```docker rm netflix```
+     - check if container is deleted using ```docker ps```
      - Go to Docker Hub and delete the 'netflix' image
-     - 
-   - Add jenkins in the Docker group
-     ```
-     sudo su
-     sudo usermod -aG docker jenkins
-     ```
+     - Add jenkins in the Docker group
+       ```
+       sudo su
+       sudo usermod -aG docker jenkins
+       ```
    - Create and run the pipeline in Jenkins
    - After the pipeline is run you can see the report in SonarQube, netflix image is created on Docker Hub, netflix container is running
+     ![jenkins1](docs/jenkins-pipeline-1.png) <br><br>
+     ![jenkins2](docs/jenkins-pipeline-2.png) <br><br><br>
 
-## Monitoring
+### Monitoring
 
 - Create a new EC2 instance
   - Region - London (eu-west-2)
@@ -141,7 +148,7 @@
   - 9090, Anywhere IPv4, prometheus
   - 9100, Anywhere IPv4, node-exporter
   - 3000, Anywhere IPv4, grafana
-- Run ```sudo apt update -y```
+- Run ```sudo apt update -y``` <br><br><br>
   
 - Install Prometheus on your EC2 instance
 - Set ownership for directories
@@ -182,8 +189,7 @@
      ```
   - Verify Prometheus's status
     ```sudo systemctl status prometheus```
-
-  - In the browser search \<PublicIP-of-Monitoring-intance>:9090, Prometheus page should be displayed
+    ![prometheus status](docs/prometheus-status.png) <br><br><br>
     
   - Install Node Exporter on your instance
   - Create a service for Node Exporter
@@ -216,11 +222,11 @@
     ```
   - Verify Node Exporter's status
     ```sudo systemctl status node_exporter```
-    You can access Node Exporter metrics in Prometheus
+    ![node exporter status](docs/node-exporter-status.png) <br><br><br>
 
   - Add jobs to the 'prometheus.yml' file
     - Navigate to ```/etc/prometheus/```
-    - Run ``` cat prometheus.yml```
+    - Run ``` cat prometheus.yml``` and add jobs in the file
       ```
       - job_name: "node_exporter"
         static_configs:
@@ -240,7 +246,8 @@
       ```promtool check config /etc/prometheus/prometheus.yml```
 
     - Reload Prometheus ```curl -X POST http://localhost:9090/-/reload```
-    - In the browser search \<PublicIP-of-Monitoring-intance>:9090, go to 'Status' -> 'Targets', the node exporter metric should be displayed
+    - In the browser search ```<PublicIP-of-Monitoring-intance>:9090``` go to 'Status' -> 'Targets', the prometheus and node exporter metric should be displayed
+      ![prometheus](docs/prometheus.png) <br><br><br>
       
     - Install Grafana on your EC2 instance
     - Enable and Start Grafana Service
@@ -249,13 +256,17 @@
       sudo systemctl start grafana-server
       ```
     - Check Grafana Status ```sudo systemctl status grafana-server```
-    - In the browser search \<PublicIP-of-Monitoring-intance>:3000, Grafana login page should be displayed
+      ![grafana status](docs/grafana-status.png)<br><br><br>
+      
+    - In the browser search ```<PublicIP-of-Monitoring-intance>:3000``` Grafana login page should be displayed
     - Login using 'Username: admin' & 'Password: admin'
     - Add Prometheus as a Data source
     - Import node exporter dashboard - 1860
     - Dashboard will be displayed
+      ![grafana node exporter](docs/grafana-node-exporter.png)<br><br><br>
     - Import Jenkins dashboard - 9964
     - Dashboard will be displayed
+      ![grafana jenkins](docs/grafana-jenkins.png)<br><br><br>
    
   ## Kubernetes
 
@@ -310,6 +321,7 @@
    - 30007, Anywhere IPv4, app nodeport
    - 9100, Anywhere IPv4, nodeexporter
 - In the browser search \<PublicIP>:30007, Netflix page should be displayed 
+
 
 
 

@@ -1,6 +1,8 @@
 # Project Implementation
 
 ## PART 1 : Development
+### Run project locally
+
 - Create AWS Account
 - Create an EC2 instance
   - Region - London (eu-west-2)
@@ -16,7 +18,7 @@
   - 8081, Anywhere IPv4, app port
   - 8080, Anywhere IPv4, jenkins
   - 9000, Anywhere IPv4, sonarqube
-- Connect to the Instance using EC2 Instance Connect
+- Connect to the Instance using EC2 Instance Connect<br><br>
   ![ec2 instance](docs/ec2-netflix-jenkins.png)
 - Run ```sudo apt update -y```
 - Clone your repository on the EC2 instance
@@ -32,24 +34,30 @@
 - Run ```docker run -d -p 8081:80 netflix```
 - Copy the PublicIP of the instance, in the browser search ```<PublicIP>:8081```
   - will only open if port 8081 is open in the security group
-- The Netflix clone website should be displayed successfully
+- The Netflix clone website should be displayed successfully<br><br>
   ![netflix](docs/Netflix-page.png)<br><br><br>
 
 ## PART 2 : Security
 
+### Itegrate security into it
+
+
 - Intall Sonarqube and Trivy on your instance
   - For sonarqube check using ```docker ps``` 'sonarqube:lts-community' container should be displayed
     - In your browser, search ```<PublicIP>:9000```, sonarqube login page should be seen
-    - Login using 'Username: admin' & 'Password: admin'
+    - Login using 'Username: admin' & 'Password: admin'<br><br>
       ![sonarqube](docs/sonarqube.png)
   - For Trivy check using ```trivy version```
     - trivy fs . or trivy image netflix
-    - You'll get a report of vulneribilities
+    - You'll get a report of vulneribilities<br><br>
       ![trivy-1](docs/trivy-1.png) <br><br>
       ![trivy-2](docs/trivy-2.png) <br><br><br>
 
 
 ## PART 3 : Operations
+
+### CI/CD
+
 
   - Install jenkins on your EC2 instance
     - check using ```sudo service jenkins status```
@@ -129,7 +137,7 @@
        sudo usermod -aG docker jenkins
        ```
    - Create and run the pipeline in Jenkins
-   - After the pipeline is run you can see the report in SonarQube, netflix image is created on Docker Hub, netflix container is running
+   - After the pipeline is run you can see the report in SonarQube, netflix image is created on Docker Hub, netflix container is running<br><br>
      ![jenkins1](docs/jenkins-pipeline-1.png) <br><br>
      ![jenkins2](docs/jenkins-pipeline-2.png) <br><br><br>
 
@@ -188,7 +196,7 @@
      sudo systemctl start prometheus
      ```
   - Verify Prometheus's status
-    ```sudo systemctl status prometheus```
+    ```sudo systemctl status prometheus```<br><br>
     ![prometheus status](docs/prometheus-status.png) <br><br><br>
     
   - Install Node Exporter on your instance
@@ -221,7 +229,7 @@
     sudo systemctl start node_exporter
     ```
   - Verify Node Exporter's status
-    ```sudo systemctl status node_exporter```
+    ```sudo systemctl status node_exporter```<br><br>
     ![node exporter status](docs/node-exporter-status.png) <br><br><br>
 
   - Add jobs to the 'prometheus.yml' file
@@ -246,8 +254,9 @@
       ```promtool check config /etc/prometheus/prometheus.yml```
 
     - Reload Prometheus ```curl -X POST http://localhost:9090/-/reload```
-    - In the browser search ```<PublicIP-of-Monitoring-intance>:9090``` go to 'Status' -> 'Targets', the prometheus and node exporter metric should be displayed
-      ![prometheus](docs/prometheus.png) <br><br><br>
+    - In the browser search ```<PublicIP-of-Monitoring-intance>:9090``` go to 'Status' -> 'Targets', the prometheus and node exporter metric should be displayed<br><br>
+      ![prometheus](docs/prometheus.png) <br><br>
+      ![prometheus](docs/prometheus-all.png) <br><br>
       
     - Install Grafana on your EC2 instance
     - Enable and Start Grafana Service
@@ -255,20 +264,20 @@
       sudo systemctl enable grafana-server
       sudo systemctl start grafana-server
       ```
-    - Check Grafana Status ```sudo systemctl status grafana-server```
+    - Check Grafana Status ```sudo systemctl status grafana-server```<br><br>
       ![grafana status](docs/grafana-status.png)<br><br><br>
       
     - In the browser search ```<PublicIP-of-Monitoring-intance>:3000``` Grafana login page should be displayed
     - Login using 'Username: admin' & 'Password: admin'
     - Add Prometheus as a Data source
     - Import node exporter dashboard - 1860
-    - Dashboard will be displayed
+    - Dashboard will be displayed<br><br>
       ![grafana node exporter](docs/grafana-node-exporter.png)<br><br><br>
     - Import Jenkins dashboard - 9964
-    - Dashboard will be displayed
+    - Dashboard will be displayed<br><br>
       ![grafana jenkins](docs/grafana-jenkins.png)<br><br><br>
    
-  ## Kubernetes
+  ### Deployment
 
 - Create EKS Cluster
   - Name : Netflix
@@ -291,7 +300,8 @@
     - kube-proxy
     - CoreDNS
   - Everything else is default settings
-  - Will be 'Active' in 15-20 minutes
+  - Will be 'Active' in 15-20 minutes<br><br>
+     ![eks cluster](docs/eks-cluster.png)<br><br><br>
  
 - Create Node group in the EKS Cluster
   - Name : Node group
@@ -303,24 +313,27 @@
     - Desired size : 1
     - Minimum size : 1
     - Maximum size : 1
-  - Everything else is default settings
+  - Everything else is default settings<br><br>
+    ![eks node group](docs/eks-node-group.png)<br><br><br>
  
  - On your machine, set context to start using EKS Cluster
    ```aws eks update-kubeconfig --name Netflix --region <your-region>```
- - Install Kubectl
- - Install Helm
- - Install Argocd
- - Expose argocd-server
- - Install Node Exporter
+ - Install Kubectl, Helm, Argocd, Node Exporter using Helm
+ 
 
- - Login Argocd using 'Username: admin' & 'Password: admin'
+ - Login to Argocd using 'Username: admin' & 'Password: \<argocd-initial-password>'
  - Add Repository in argocd
- - Create Application in argocd
- - Amazon Elastic Kubernetes Service\Clusters\Netflix\nodes
+ - Create Application in argocd<br><br>
+   ![argocd](docs/Argocd-final.png)<br><br><br>
+   
  - In the EC2 instance attached to the node, edit the security group
    - 30007, Anywhere IPv4, app nodeport
    - 9100, Anywhere IPv4, nodeexporter
-- In the browser search \<PublicIP>:30007, Netflix page should be displayed 
+- In the browser search ```<PublicIP>:30007```, Netflix page should be displayed<br><br>
+  ![netflix new](docs/Netflix-new.png)<br><br><br>
+- In the browser search ```<PublicIP>:9100```, Netflix page should be displayed<br><br>
+  ![node exporter](docs/node-exporter.png)
+
 
 
 

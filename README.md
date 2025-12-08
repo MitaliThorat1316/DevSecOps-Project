@@ -1,10 +1,24 @@
 # Dev-Sec-Ops Project
+This project delivers a full DevSecOps project by deploying a Netflix-clone app as a Docker container on EKS through a secure CI/CD pipeline, integrating tools like Jenkins, SonarQube, Trivy, Prometheus, Grafana, and ArgoCD for automation, security, monitoring, and GitOps-based deployment
 ## Table of contents
 ## Project Highlights
+- Created and configured an AWS environment by setting up an account, launching EC2 instances, defining Security Group rules, assigning Elastic IPs, and connecting via EC2 Instance Connect.
+- Integrated TMDB API to build a Netflix-clone application, containerized it using Docker, and deployed/running the containerized app via Elastic IP and exposed ports.
+- Implemented security and code-quality checks by integrating SonarQube for static code analysis and Trivy for container image vulnerability scanning.
+- Built a complete CI/CD pipeline in Jenkins by configuring plugins, tools, credentials, system settings, writing a pipeline script, and enabling email notifications for build status.
+- Monitored the infrastructure using Prometheus by scraping metrics from EC2, Jenkins, Node Exporter, and visualized performance dashboards in Grafana.
+- Provisioned and configured an EKS cluster with managed node groups, assigned IAM roles, and deployed applications using ArgoCD, including the Netflix clone and Node Exporter for monitoring.
 ## Project Techstack
+- Cloud Platform - AWS
+- AWS infrastructure - EC2, EKS, Elastic IP, Instance Connect, Security Groups, IAM Roles
+- Containerization - Docker, Docker Hub
+- Security & Code Quality - SonarQube and Trivy
+- CI/CD - Jenkins
+- Monitoring & Observability - Prometheus and Grafana
+- GitOps - ArgoCD
 ## Project Implementation
 
-## PART 1 : Development
+### PART 1 : Development
 ### Run project locally
 
 - Create AWS Account
@@ -41,7 +55,7 @@
 - The Netflix clone website should be displayed successfully<br><br>
   ![netflix](docs/Netflix-page.png)<br><br><br>
 
-## PART 2 : Security
+### PART 2 : Security
 
 ### Itegrate security into it
 
@@ -58,7 +72,7 @@
       ![trivy-2](docs/trivy-2.png) <br><br><br>
 
 
-## PART 3 : Operations
+### PART 3 : Operations
 
 ### CI/CD
 
@@ -337,6 +351,7 @@
   ![netflix new](docs/Netflix-new.png)<br><br><br>
 - In the browser search ```<PublicIP>:9100```, Netflix page should be displayed<br><br>
   ![node exporter](docs/node-exporter.png)
+
 
 
 

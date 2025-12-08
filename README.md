@@ -1,6 +1,18 @@
 # Dev-Sec-Ops Project
 This project delivers a full DevSecOps project by deploying a Netflix-clone app as a Docker container on EKS through a secure CI/CD pipeline, integrating tools like Jenkins, SonarQube, Trivy, Prometheus, Grafana, and ArgoCD for automation, security, monitoring, and GitOps-based deployment
+ ![netflix intro](docs/Project-intro-pic.png)
+ 
 ## Table of contents
+- [Project Highlights](#project-highlights)
+- [Project Techstack](#project-techstack)
+- [Project Implementation](#project-implementation)
+  - [PART 1 : Development](#part-1--development)
+  - [PART 2 : Security](#part-2--security)
+  - [PART 3 : Operations](#part-3--operations)
+    - [CI/CD](#cicd)
+    - [Monitoring](#monitoring)
+    - [Deployment](#deployment)
+
 ## Project Highlights
 - Created and configured an AWS environment by setting up an account, launching EC2 instances, defining Security Group rules, assigning Elastic IPs, and connecting via EC2 Instance Connect.
 - Integrated TMDB API to build a Netflix-clone application, containerized it using Docker, and deployed/running the containerized app via Elastic IP and exposed ports.
@@ -8,6 +20,7 @@ This project delivers a full DevSecOps project by deploying a Netflix-clone app 
 - Built a complete CI/CD pipeline in Jenkins by configuring plugins, tools, credentials, system settings, writing a pipeline script, and enabling email notifications for build status.
 - Monitored the infrastructure using Prometheus by scraping metrics from EC2, Jenkins, Node Exporter, and visualized performance dashboards in Grafana.
 - Provisioned and configured an EKS cluster with managed node groups, assigned IAM roles, and deployed applications using ArgoCD, including the Netflix clone and Node Exporter for monitoring.
+  
 ## Project Techstack
 - Cloud Platform - AWS
 - AWS infrastructure - EC2, EKS, Elastic IP, Instance Connect, Security Groups, IAM Roles
@@ -16,6 +29,7 @@ This project delivers a full DevSecOps project by deploying a Netflix-clone app 
 - CI/CD - Jenkins
 - Monitoring & Observability - Prometheus and Grafana
 - GitOps - ArgoCD
+  
 ## Project Implementation
 
 ### PART 1 : Development
@@ -39,8 +53,8 @@ This project delivers a full DevSecOps project by deploying a Netflix-clone app 
 - Connect to the Instance using EC2 Instance Connect<br><br>
   ![ec2 instance](docs/ec2-netflix-jenkins.png)
 - Run ```sudo apt update -y```
-- Clone your repository on the EC2 instance
-- Navigate to the repository DevSecOps-Project (you'll see the Dockerfile)<br><br><br>
+- Clone your repository on the EC2 instance ```git clone https://github.com/MitaliThorat1316/DevSecOps-Project.git```
+- Navigate to the ```/DevSecOps-Project``` (you'll see the Dockerfile)<br><br><br>
 
 - In the browser, go to 'TMDB' website and create an account
 - Go to your profile, create and copy the API Key<br><br><br>
@@ -57,7 +71,7 @@ This project delivers a full DevSecOps project by deploying a Netflix-clone app 
 
 ### PART 2 : Security
 
-### Itegrate security into it
+### Imtegrate security into it
 
 
 - Intall Sonarqube and Trivy on your instance
@@ -66,7 +80,7 @@ This project delivers a full DevSecOps project by deploying a Netflix-clone app 
     - Login using 'Username: admin' & 'Password: admin'<br><br>
       ![sonarqube](docs/sonarqube.png)
   - For Trivy check using ```trivy version```
-    - trivy fs . or trivy image netflix
+    - ```trivy fs .``` or ```trivy image netflix```
     - You'll get a report of vulneribilities<br><br>
       ![trivy-1](docs/trivy-1.png) <br><br>
       ![trivy-2](docs/trivy-2.png) <br><br><br>
@@ -351,6 +365,7 @@ This project delivers a full DevSecOps project by deploying a Netflix-clone app 
   ![netflix new](docs/Netflix-new.png)<br><br><br>
 - In the browser search ```<PublicIP>:9100```, Netflix page should be displayed<br><br>
   ![node exporter](docs/node-exporter.png)
+
 
 
 

@@ -1,5 +1,5 @@
 # Dev-Sec-Ops Project
-This project delivers a full DevSecOps project by deploying a Netflix-clone app as a Docker container on EKS through a secure CI/CD pipeline, integrating tools like Jenkins, SonarQube, Trivy, Prometheus, Grafana, and ArgoCD for automation, security, monitoring, and GitOps-based deployment
+This project delivers a full DevSecOps project by deploying a Netflix-clone app as a Docker container on EKS through a secure CI/CD pipeline, integrating tools like Jenkins, SonarQube, Trivy, Prometheus, Grafana, and ArgoCD for automation, security, monitoring, and GitOps-based deployment<br><br><br>
  ![netflix intro](docs/Project-intro-pic.png)
  
 ## Table of contents
@@ -365,6 +365,7 @@ This project delivers a full DevSecOps project by deploying a Netflix-clone app 
   ![netflix new](docs/Netflix-new.png)<br><br><br>
 - In the browser search ```<PublicIP>:9100```, Netflix page should be displayed<br><br>
   ![node exporter](docs/node-exporter.png)
+
 
 
 
